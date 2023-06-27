@@ -96,6 +96,7 @@ const ClaimTokens = () => {
             {nftLoading ? (
               <h2>Loading NFTs...</h2>
             ) : (
+              petNFTOwned &&
               petNFTOwned?.length > 0 && (
                 <>
                   <h2>My Pets</h2>
