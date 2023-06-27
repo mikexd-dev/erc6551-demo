@@ -1,54 +1,60 @@
-import { ConnectWallet } from "@thirdweb-dev/react";
+import {
+  ConnectWallet,
+  Web3Button,
+  useAddress,
+  useContract,
+  useOwnedNFTs,
+} from "@thirdweb-dev/react";
 import type { NextPage } from "next";
-import styles from "../styles/Home.module.css";
+import styles from "../styles/Main.module.css";
+import { NFTDROP_ADDRESS } from "../const/constants";
+import NFTGrid from "../components/NFT/NFTGrid";
+import Container from "../components/Container/Container";
+import Link from "next/link";
 
 const Home: NextPage = () => {
+  const address = useAddress();
+
+  const { contract } = useContract(NFTDROP_ADDRESS);
+
+  const { data, isLoading } = useOwnedNFTs(contract, address);
+
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="http://thirdweb.com/">thirdweb</a>!
-        </h1>
-
-        <p className={styles.description}>
-          Get started by configuring your desired network in{" "}
-          <code className={styles.code}>pages/_app.tsx</code>, then modify the{" "}
-          <code className={styles.code}>pages/index.tsx</code> file!
-        </p>
-
-        <div className={styles.connect}>
+    <Container maxWidth="lg">
+      {address ? (
+        <div className={styles.container}>
+          <h1>ERC6551 Demo (Mumbai Testnet)</h1>
+          <p style={{ width: "50%" }}>
+            Browse the NFTs inside your personal wallet, select one to connect a
+            token bound smart wallet & view it&apos;s balance.
+          </p>
+          <p style={{ width: "50%", fontSize: "10px", color: "#BBF7D0" }}>
+            Note: First NFT claim requires a small amount of Matic to cover gas.
+            You can get some <Link href="https://mumbaifaucet.com">here</Link>{" "}
+            if you don&apos;t have any. Subsequent claims within the NFT Wallet
+            are gasless.
+          </p>
+          <NFTGrid
+            isLoading={isLoading}
+            nfts={data}
+            emptyText={"No NFTs found"}
+          />
+          <div className={styles.btnContainer}>
+            <Web3Button
+              contractAddress={NFTDROP_ADDRESS}
+              action={(contract) => contract.erc721.claim(1)}
+            >
+              Claim NFT
+            </Web3Button>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.container}>
+          <h2>Connect a personal wallet to view your owned NFTs</h2>
           <ConnectWallet />
         </div>
-
-        <div className={styles.grid}>
-          <a href="https://portal.thirdweb.com/" className={styles.card}>
-            <h2>Portal &rarr;</h2>
-            <p>
-              Guides, references and resources that will help you build with
-              thirdweb.
-            </p>
-          </a>
-
-          <a href="https://thirdweb.com/dashboard" className={styles.card}>
-            <h2>Dashboard &rarr;</h2>
-            <p>
-              Deploy, configure and manage your smart contracts from the
-              dashboard.
-            </p>
-          </a>
-
-          <a
-            href="https://portal.thirdweb.com/templates"
-            className={styles.card}
-          >
-            <h2>Templates &rarr;</h2>
-            <p>
-              Discover and clone template projects showcasing thirdweb features.
-            </p>
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </Container>
   );
 };
 
